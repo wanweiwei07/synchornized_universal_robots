@@ -6,7 +6,6 @@ import threading
 from copy import deepcopy
 
 import numpy as np
-
 import math3d as m3d
 
 class URRTMonitor(threading.Thread):
@@ -166,6 +165,12 @@ class URRTMonitor(threading.Thread):
             self._qTarget = np.array(unp[1:7])
             self._tcp_force = np.array(unp[67:73])
             self._tcp = np.array(unp[73:79])
+
+            if self._csys:
+                with self._csys_lock:
+                    # might be a godd idea to remove dependancy on m3d
+                    tcp = self._csys.inverse * m3d.Transform(self._tcp)
+                self._tcp = tcp.pose_vector
 
         if self._buffering:
             with self._buffer_lock:
